@@ -81,6 +81,7 @@
     backdrop-filter: blur(10px);
     box-shadow: 0 18px 50px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
     overflow: hidden;
+    page-break-inside: avoid;
     opacity: 0;
     transform: translateY(18px);
     animation: rise 0.7s ease forwards;
@@ -333,7 +334,7 @@
     <a class="chip" href="#s04">04 项目</a>
     <a class="chip" href="#s05">05 教育</a>
   </div>
-  <button class="export" onclick="window.print()">⤓ 导出 PDF</button>
+  <button class="export" onclick="downloadPDF()">⤓ 导出 PDF</button>
 </nav>
 
 <div class="deck">
@@ -665,9 +666,40 @@
     </div>
   </section>
 
-  <footer>// END OF RESUME · 邓伟 (David Deng) · M365 / AD / IAM SME //</footer>
+  <footer>// END OF RESUME · 邓伟 (David Deng) · M365 / AD / IAM SME //  </footer>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
 <script>
+  function downloadPDF() {
+    var nav = document.querySelector('.topnav');
+    var prevNav = nav ? nav.style.display : '';
+    var prevAttach = document.body.style.backgroundAttachment;
+    var prevPad = document.body.style.paddingTop;
+    if (nav) nav.style.display = 'none';
+    document.body.style.backgroundAttachment = 'scroll';
+    document.body.style.paddingTop = '16px';
+
+    function restore() {
+      if (nav) nav.style.display = prevNav;
+      document.body.style.backgroundAttachment = prevAttach;
+      document.body.style.paddingTop = prevPad;
+    }
+
+    if (typeof html2pdf === 'undefined') { restore(); window.print(); return; }
+
+    var opt = {
+      margin: 0,
+      filename: '邓伟_简历_M365.pdf',
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#111827', scrollY: 0 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(document.body).save()
+      .then(restore)
+      .catch(function () { restore(); window.print(); });
+  }
   (function () {
     var chips = document.querySelectorAll('.topnav a.chip');
     var map = {};
