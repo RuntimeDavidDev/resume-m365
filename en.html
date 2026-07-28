@@ -4,7 +4,7 @@
 <title>Deng Wei (David) · Senior Microsoft 365 / IAM Engineer Resume</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg: #111827;
@@ -24,7 +24,7 @@
     --grad: linear-gradient(120deg, #22d3ee, #3b82f6 45%, #8b5cf6);
     --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
     --display: 'Orbitron', 'JetBrains Mono', sans-serif;
-    --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Segoe UI', system-ui, sans-serif;
+    --sans: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Segoe UI', system-ui, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -85,6 +85,14 @@
     animation: rise 0.7s ease forwards;
   }
   .pdf-export .slide { page-break-inside: auto; margin-bottom: 10px !important; border-radius: 12px; }
+  /* PDF export: html2canvas can't render gradient text or backdrop-filter, so flatten them */
+  .pdf-export .slide-num,
+  .pdf-export .cover .name,
+  .pdf-export .name { background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important; -webkit-text-fill-color: currentColor !important; color: var(--head) !important; }
+  .pdf-export .cover .name { color: #cfe8ff !important; }
+  .pdf-export .slide,
+  .pdf-export .topnav { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: var(--panel-solid) !important; }
+  .pdf-export .monogram { box-shadow: none !important; }
   .slide:nth-child(2){animation-delay:.05s}
   .slide:nth-child(3){animation-delay:.12s}
   .slide:nth-child(4){animation-delay:.19s}
