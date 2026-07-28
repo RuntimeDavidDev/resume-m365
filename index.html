@@ -6,7 +6,7 @@
 <title>邓伟 (David) · Microsoft 365 / IAM 高级工程师 简历</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg: #111827;
@@ -26,7 +26,7 @@
     --grad: linear-gradient(120deg, #22d3ee, #3b82f6 45%, #8b5cf6);
     --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
     --display: 'Orbitron', 'JetBrains Mono', sans-serif;
-    --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Segoe UI', system-ui, sans-serif;
+    --sans: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Segoe UI', system-ui, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -691,15 +691,18 @@
     var opt = {
       margin: 0,
       filename: '邓伟_简历_M365.pdf',
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#111827', scrollY: 0 },
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 3, useCORS: true, backgroundColor: '#111827', scrollY: 0, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(document.body).save()
-      .then(restore)
-      .catch(function () { restore(); window.print(); });
+    document.fonts.ready.then(function () {
+      return html2pdf().set(opt).from(document.body).save();
+    }).then(restore).catch(function () {
+      restore();
+      window.print();
+    });
   }
   (function () {
     var chips = document.querySelectorAll('.topnav a.chip');
