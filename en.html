@@ -84,6 +84,7 @@
     transform: translateY(18px);
     animation: rise 0.7s ease forwards;
   }
+  .pdf-export .slide { page-break-inside: auto; margin-bottom: 10px !important; border-radius: 12px; }
   .slide:nth-child(2){animation-delay:.05s}
   .slide:nth-child(3){animation-delay:.12s}
   .slide:nth-child(4){animation-delay:.19s}
@@ -679,6 +680,7 @@
     document.body.style.paddingTop = '16px';
 
     function restore() {
+      document.body.classList.remove('pdf-export');
       if (nav) nav.style.display = prevNav;
       document.body.style.backgroundAttachment = prevAttach;
       document.body.style.paddingTop = prevPad;
@@ -686,18 +688,23 @@
 
     if (typeof html2pdf === 'undefined') { restore(); window.print(); return; }
 
+    document.body.classList.add('pdf-export');
+
     var opt = {
       margin: 0,
       filename: 'Deng_Wei_Resume_M365.pdf',
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#111827', scrollY: 0 },
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 3, useCORS: true, backgroundColor: '#111827', scrollY: 0, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: [] }
     };
 
-    html2pdf().set(opt).from(document.body).save()
-      .then(restore)
-      .catch(function () { restore(); window.print(); });
+    document.fonts.ready.then(function () {
+      return html2pdf().set(opt).from(document.body).save();
+    }).then(restore).catch(function () {
+      restore();
+      window.print();
+    });
   }
   (function () {
     var chips = document.querySelectorAll('.topnav a.chip');

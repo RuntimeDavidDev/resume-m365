@@ -86,6 +86,7 @@
     transform: translateY(18px);
     animation: rise 0.7s ease forwards;
   }
+  .pdf-export .slide { page-break-inside: auto; margin-bottom: 10px !important; border-radius: 12px; }
   .slide:nth-child(2){animation-delay:.05s}
   .slide:nth-child(3){animation-delay:.12s}
   .slide:nth-child(4){animation-delay:.19s}
@@ -681,6 +682,7 @@
     document.body.style.paddingTop = '16px';
 
     function restore() {
+      document.body.classList.remove('pdf-export');
       if (nav) nav.style.display = prevNav;
       document.body.style.backgroundAttachment = prevAttach;
       document.body.style.paddingTop = prevPad;
