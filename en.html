@@ -679,93 +679,211 @@
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.4.2/dist/html-docx.js"></script>
 <script>
   /* ---------- Export resume as an editable Word document ---------- */
-  /* Flatten unsupported CSS for Word while PRESERVING the dark theme */
-  function flattenForWord(root) {
-    function setAll(sel, fn) { root.querySelectorAll(sel).forEach(fn); }
-    /* Slides: solid dark bg, remove blur/shadow, add cyan top border to mimic gradient bar */
-    setAll('.slide', function (n) {
-      n.style.backgroundColor = '#111827';
-      n.style.background = '#111827';
-      n.style.border = '1px solid #1e3a5f';
-      n.style.borderTop = '3px solid #22d3ee';
-      n.style.boxShadow = 'none';
-      n.style.backdropFilter = 'none';
-      n.style.webkitBackdropFilter = 'none';
-    });
-    /* gradient text -> solid (background-clip:text not supported in Word) */
-    setAll('.name, .cover .name', function (n) {
-      n.style.background = 'none';
-      n.style.webkitBackgroundClip = 'border-box';
-      n.style.backgroundClip = 'border-box';
-      n.style.webkitTextFillColor = '#e7eefc';
-      n.style.color = '#e7eefc';
-    });
-    setAll('.slide-num', function (n) {
-      n.style.background = 'none';
-      n.style.webkitBackgroundClip = 'border-box';
-      n.style.backgroundClip = 'border-box';
-      n.style.webkitTextFillColor = '#22d3ee';
-      n.style.color = '#22d3ee';
-    });
-    /* monogram gradient bg -> solid cyan */
-    setAll('.monogram', function (n) {
-      n.style.background = '#22d3ee';
-      n.style.boxShadow = 'none';
-    });
-    /* decorative gradient bar in slide-head -> hide */
-    setAll('.bar', function (n) { n.style.display = 'none'; });
-    /* project & edu cards: solid dark bg */
-    setAll('.proj', function (n) { n.style.backgroundColor = '#0b1226'; n.style.background = '#0b1226'; });
-    setAll('.edu-card', function (n) { n.style.backgroundColor = '#0b1226'; n.style.background = '#0b1226'; });
-  }
-
+  /* Manually build a Word-compatible HTML (no Grid/Flex - html-docx-js can't handle them) */
   function buildWordHtml() {
-    var deck = document.querySelector('.deck');
-    if (!deck) return '';
-    var clone = deck.cloneNode(true);
-    flattenForWord(clone);
-    var inner = clone.innerHTML;
-    var style = '' +
-      'body{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#e2e8f0;background-color:#111827;margin:0;padding:20px;}' +
-      '.slide{background-color:#111827;border:1px solid #1e3a5f;border-top:3px solid #22d3ee;padding:16px 18px;margin-bottom:14px;}' +
-      '.slide-head{border-bottom:1px solid #1e3a5f;padding-bottom:10px;margin-bottom:14px;}' +
-      '.slide-num{font-weight:900;color:#22d3ee;font-size:24px;}' +
-      '.slide-title{font-weight:800;color:#60a5fa;font-size:18px;letter-spacing:1px;}' +
-      '.slide-title small{display:block;color:#64748b;font-size:11px;letter-spacing:2px;}' +
-      '.cover .name{font-size:32px;font-weight:900;color:#e7eefc;}' +
-      '.cover .en{color:#22d3ee;font-size:14px;letter-spacing:3px;}' +
-      '.cover .role{color:#e2e8f0;border:1px solid #1e3a5f;background-color:#0b1226;padding:5px 12px;font-size:15px;font-weight:700;}' +
-      '.contact{color:#94a3b8;font-size:13px;}' +
-      '.contact span b{color:#e2e8f0;}' +
-      '.contact .ico{color:#22d3ee;}' +
-      '.tag{border:1px solid #1e3a5f;background-color:#0b1226;color:#e2e8f0;padding:3px 10px;font-size:12px;}' +
-      '.tag.hot{background-color:#0a1f2e;border-color:#22d3ee;color:#d7fbff;}' +
-      '.cert{border:1px solid #5b21b6;background-color:#1a103a;color:#e3d9ff;padding:3px 10px;font-size:12px;}' +
-      '.prof-badge{padding:3px 10px;font-size:11px;font-weight:700;}' +
-      '.prof-badge.expert{color:#34d399;background-color:#0a2e26;border:1px solid #34d399;}' +
-      '.prof-badge.proficient{color:#94a3b8;background-color:#1e293b;border:1px solid #475569;}' +
-      '.prof-name{color:#e2e8f0;font-size:13px;}' +
-      '.tl-role{color:#f8fafc;font-weight:800;}' +
-      '.tl-org{color:#22d3ee;font-weight:600;}' +
-      '.tl-date{color:#64748b;}' +
-      '.tl-list li{color:#e2e8f0;font-size:13px;}' +
-      '.summary{color:#e2e8f0;}' +
-      '.summary b{color:#f8fafc;}' +
-      '.tl-list li b{color:#f8fafc;}' +
-      '.proj{background-color:#0b1226;border:1px solid #1e3a5f;padding:14px 16px;margin-bottom:14px;}' +
-      '.proj-name{color:#f8fafc;font-weight:800;font-size:16px;}' +
-      '.proj-name .tagmini{color:#22d3ee;border:1px solid #1e3a5f;padding:2px 8px;font-size:11px;}' +
-      '.proj-date{color:#64748b;font-size:12px;}' +
-      '.proj p.desc{color:#94a3b8;}' +
-      '.proj p.desc b{color:#f8fafc;}' +
-      '.metric{color:#bdf3ff;background-color:#0a1f2e;border:1px solid #22d3ee;padding:3px 10px;font-size:12px;}' +
-      '.edu-card{background-color:#0b1226;border:1px solid #1e3a5f;padding:12px 14px;}' +
-      '.edu-card .k{color:#64748b;font-size:11px;}' +
-      '.edu-card .v{color:#f8fafc;font-size:15px;font-weight:700;}' +
-      'h4{color:#22d3ee;font-size:12px;letter-spacing:1px;}' +
-      'footer{color:#64748b;text-align:center;font-size:11px;}' +
-      'a{color:#60a5fa;text-decoration:none;}';
-    return '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>' + style + '</style></head><body bgcolor="#111827">' + inner + '</body></html>';
+    function $(s, r) { return (r || document).querySelector(s); }
+    function $$(s, r) { return Array.from((r || document).querySelectorAll(s)); }
+    /* Dark theme palette */
+    var bg = '#111827', card = '#0b1226', border = '#1e3a5f';
+    var cyan = '#22d3ee', blue = '#60a5fa', green = '#34d399';
+    var text = '#e2e8f0', muted = '#94a3b8', dim = '#64748b', white = '#f8fafc';
+    /* Slide wrapper: dark bg + cyan top border */
+    function slide(content, noTopBar) {
+      var topColor = noTopBar ? border : cyan;
+      return '<div style="background-color:' + bg + ';border:1px solid ' + border + ';border-top:3px solid ' + topColor + ';padding:18px 20px;margin-bottom:14px;">' + content + '</div>';
+    }
+    /* Slide header: table-based layout */
+    function head(num, title, sub) {
+      return '<table style="width:100%;border-collapse:collapse;border-bottom:1px solid ' + border + ';"><tr>' +
+        '<td style="width:55px;font-weight:900;color:' + cyan + ';font-size:26px;vertical-align:middle;padding-bottom:10px;font-family:Arial;">' + num + '</td>' +
+        '<td style="vertical-align:middle;padding-bottom:10px;">' +
+          '<div style="font-weight:800;color:' + blue + ';font-size:18px;letter-spacing:1px;font-family:Arial;">' + title + '</div>' +
+          '<div style="color:' + dim + ';font-size:11px;letter-spacing:2px;font-weight:600;font-family:Arial;">' + sub + '</div>' +
+        '</td>' +
+        '</tr></table><div style="height:14px;"></div>';
+    }
+    /* Tag pill */
+    function pill(t, hot) {
+      var pBg = hot ? '#0a1f2e' : card;
+      var pBorder = hot ? cyan : border;
+      var pColor = hot ? '#d7fbff' : text;
+      return '<span style="border:1px solid ' + pBorder + ';background-color:' + pBg + ';color:' + pColor + ';padding:3px 10px;font-size:12px;border-radius:99px;margin:2px 4px 2px 0;font-family:Arial;">' + t + '</span>';
+    }
+    /* Cert pill */
+    function certPill(t) {
+      return '<span style="border:1px solid #5b21b6;background-color:#1a103a;color:#e3d9ff;padding:3px 10px;font-size:12px;border-radius:99px;margin:2px;font-family:Arial;">&#10003; ' + t + '</span>';
+    }
+    /* Section heading */
+    function h4(t) {
+      return '<div style="color:' + cyan + ';font-size:12px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;margin:14px 0 8px;font-family:Arial;">&#9656; ' + t + '</div>';
+    }
+    /* Proficiency row */
+    function profRow(name, level) {
+      var badgeColor = level === 'Expert' ? green : muted;
+      var badgeBg = level === 'Expert' ? '#0a2e26' : '#1e293b';
+      var badgeBorder = level === 'Expert' ? green : '#475569';
+      return '<tr><td style="padding:5px 0;color:' + text + ';font-size:13px;font-family:Arial;">' + name + '</td>' +
+        '<td style="text-align:right;padding:5px 0;"><span style="padding:3px 12px;font-size:11px;font-weight:700;color:' + badgeColor + ';background-color:' + badgeBg + ';border:1px solid ' + badgeBorder + ';border-radius:99px;font-family:Arial;">' + level + '</span></td></tr>';
+    }
+    /* Metric pill */
+    function metric(t) {
+      return '<span style="color:#bdf3ff;background-color:#0a1f2e;border:1px solid ' + cyan + ';padding:3px 10px;font-size:12px;border-radius:7px;margin:2px 4px 2px 0;font-family:Arial;">' + t + '</span>';
+    }
+
+    /* ===== SLIDE 1: COVER ===== */
+    var coverImg = $('#cover img.monogram');
+    var coverName = $('#cover .name').textContent;
+    var coverEn = $('#cover .en').textContent;
+    var coverRole = $('#cover .role').textContent;
+    var coverContacts = $$('#cover .contact > span').map(function (s) { return s.innerHTML; });
+    var contactRows = '';
+    for (var i = 0; i < coverContacts.length; i += 2) {
+      contactRows += '<tr>';
+      contactRows += '<td style="padding:5px 18px 5px 0;color:' + muted + ';font-size:12px;font-family:Arial;width:50%;vertical-align:top;">' + coverContacts[i] + '</td>';
+      contactRows += '<td style="padding:5px 0;color:' + muted + ';font-size:12px;font-family:Arial;width:50%;vertical-align:top;">' + (coverContacts[i + 1] || '&nbsp;') + '</td>';
+      contactRows += '</tr>';
+    }
+    var coverHtml = slide(
+      '<table style="width:100%;border-collapse:collapse;"><tr>' +
+        '<td style="width:135px;vertical-align:middle;">' +
+          (coverImg ? '<img src="' + coverImg.src + '" style="width:116px;height:116px;border-radius:24px;object-fit:cover;">' :
+            '<div style="width:116px;height:116px;background-color:' + cyan + ';border-radius:24px;text-align:center;line-height:116px;font-size:46px;font-weight:900;color:#04101e;font-family:Arial;">DW</div>') +
+        '</td>' +
+        '<td style="vertical-align:middle;padding-left:14px;">' +
+          '<div style="font-size:34px;font-weight:900;color:' + white + ';letter-spacing:4px;font-family:Arial;">' + coverName + '</div>' +
+          '<div style="color:' + cyan + ';font-size:13px;letter-spacing:3px;margin-top:6px;font-family:Arial;">' + coverEn + '</div>' +
+          '<div style="display:inline-block;margin-top:14px;font-size:14px;font-weight:700;color:' + text + ';padding:7px 14px;border:1px solid ' + border + ';border-radius:99px;background-color:' + card + ';">' + coverRole + '</div>' +
+          '<div style="margin-top:18px;">' +
+            '<table style="border-collapse:collapse;width:100%;">' + contactRows + '</table>' +
+          '</div>' +
+        '</td>' +
+      '</tr></table>',
+      true
+    );
+
+    /* ===== SLIDE 2: PROFILE ===== */
+    var profileText = $('#s01 .summary').innerHTML;
+    var slide2 = slide(
+      head('01', 'Profile', 'PROFILE / OBJECTIVE') +
+      '<div style="color:' + text + ';font-size:13px;line-height:1.7;font-family:Arial;">' + profileText + '</div>'
+    );
+
+    /* ===== SLIDE 3: SKILLS ===== */
+    var leftGroups = $$('#s02 .cols > div:first-child > .group');
+    var leftHtml = '';
+    leftGroups.forEach(function (g) {
+      var title = g.querySelector('h4').textContent;
+      var pillsHtml = $$('.tag, .cert', g).map(function (t) {
+        if (t.classList.contains('cert')) return certPill(t.textContent.replace('✓ ', ''));
+        return pill(t.textContent, t.classList.contains('hot'));
+      }).join('');
+      leftHtml += h4(title) + '<div style="margin-bottom:6px;">' + pillsHtml + '</div>';
+    });
+    var rightGroups = $$('#s02 .cols > div:last-child > .group');
+    var rightHtml = '';
+    rightGroups.forEach(function (g) {
+      var title = g.querySelector('h4').textContent;
+      if (title === 'Proficiency') {
+        var rows = $$('.prof-row', g).map(function (r) {
+          return profRow(r.querySelector('.prof-name').textContent, r.querySelector('.prof-badge').textContent);
+        }).join('');
+        rightHtml += h4(title) + '<table style="width:100%;border-collapse:collapse;">' + rows + '</table>';
+      } else {
+        var p = $$('.tag', g).map(function (t) {
+          return pill(t.textContent, t.classList.contains('hot'));
+        }).join('');
+        rightHtml += h4(title) + '<div>' + p + '</div>';
+      }
+    });
+    var slide3 = slide(
+      head('02', 'Core Skill Matrix', 'SKILL MATRIX') +
+      '<table style="width:100%;border-collapse:collapse;"><tr>' +
+        '<td style="width:48%;vertical-align:top;padding-right:18px;">' + leftHtml + '</td>' +
+        '<td style="width:48%;vertical-align:top;padding-left:18px;border-left:1px solid ' + border + ';">' + rightHtml + '</td>' +
+      '</tr></table>'
+    );
+
+    /* ===== SLIDE 4: EXPERIENCE ===== */
+    var tlItems = $$('#s03 .tl-item');
+    var tlHtml = '';
+    tlItems.forEach(function (item) {
+      var role = item.querySelector('.tl-role').textContent;
+      var org = item.querySelector('.tl-org').textContent;
+      var date = item.querySelector('.tl-date').textContent;
+      var items = $$('.tl-list li', item).map(function (li) {
+        return '&rsaquo; ' + li.innerHTML;
+      }).join('<br>');
+      tlHtml += '<div style="margin-bottom:18px;padding:4px 0 4px 18px;border-left:2px solid ' + cyan + ';">' +
+        '<div style="font-weight:800;color:' + white + ';font-size:15px;font-family:Arial;">' + role + ' &middot; <span style="color:' + cyan + ';">' + org + '</span></div>' +
+        '<div style="color:' + dim + ';font-size:11px;margin:4px 0;font-family:Arial;">' + date + '</div>' +
+        '<div style="color:' + text + ';font-size:12px;line-height:1.7;margin-top:6px;font-family:Arial;">' + items + '</div>' +
+      '</div>';
+    });
+    var slide4 = slide(
+      head('03', 'Experience', 'EXPERIENCE') +
+      tlHtml
+    );
+
+    /* ===== SLIDE 5: PROJECTS ===== */
+    var projects = $$('#s04 .proj');
+    var projHtml = '';
+    projects.forEach(function (p) {
+      var nameEl = p.querySelector('.proj-name');
+      var nameText = nameEl.childNodes[0].textContent.trim();
+      var tagmini = nameEl.querySelector('.tagmini');
+      var date = p.querySelector('.proj-date').textContent;
+      var desc = p.querySelector('p.desc').innerHTML;
+      var items = $$('.tl-list li', p).map(function (li) {
+        return '&rsaquo; ' + li.innerHTML;
+      }).join('<br>');
+      var metricsHtml = $$('.metric', p).map(function (m) {
+        return metric(m.textContent);
+      }).join('');
+      projHtml += '<div style="background-color:' + card + ';border:1px solid ' + border + ';padding:14px 16px;margin-bottom:14px;">' +
+        '<table style="width:100%;border-collapse:collapse;"><tr>' +
+          '<td style="vertical-align:baseline;">' +
+            '<span style="font-weight:800;color:' + white + ';font-size:15px;font-family:Arial;">' + nameText + '</span>' +
+            (tagmini ? ' <span style="font-size:10px;color:' + cyan + ';border:1px solid ' + border + ';padding:2px 8px;border-radius:6px;margin-left:6px;font-family:Arial;">' + tagmini.textContent + '</span>' : '') +
+          '</td>' +
+          '<td style="text-align:right;vertical-align:baseline;color:' + dim + ';font-size:11px;font-family:Arial;white-space:nowrap;padding-left:10px;">' + date + '</td>' +
+        '</tr></table>' +
+        '<div style="color:' + muted + ';font-size:12px;margin:10px 0;line-height:1.6;font-family:Arial;">' + desc + '</div>' +
+        (items ? '<div style="color:' + text + ';font-size:12px;line-height:1.7;margin:8px 0;font-family:Arial;">' + items + '</div>' : '') +
+        (metricsHtml ? '<div style="margin-top:10px;">' + metricsHtml + '</div>' : '') +
+      '</div>';
+    });
+    var slide5 = slide(
+      head('04', 'Key Projects', 'KEY PROJECTS') +
+      projHtml
+    );
+
+    /* ===== SLIDE 6: EDUCATION ===== */
+    var eduCards = $$('#s05 .edu-card');
+    var eduCells = eduCards.map(function (c) {
+      var k = c.querySelector('.k').textContent;
+      var v = c.querySelector('.v').textContent;
+      return '<td style="background-color:' + card + ';border:1px solid ' + border + ';padding:12px 14px;width:25%;vertical-align:top;">' +
+        '<div style="color:' + dim + ';font-size:10px;letter-spacing:1px;font-family:Arial;">' + k + '</div>' +
+        '<div style="color:' + white + ';font-size:13px;font-weight:700;margin-top:4px;font-family:Arial;">' + v + '</div>' +
+      '</td>';
+    }).join('');
+    var certs = $$('#s05 .cert').map(function (c) {
+      return certPill(c.textContent.replace('✓ ', ''));
+    }).join('');
+    var slide6 = slide(
+      head('05', 'Education & Certs', 'EDUCATION & CERTS') +
+      '<table style="width:100%;border-collapse:collapse;margin-bottom:16px;"><tr>' + eduCells + '</tr></table>' +
+      h4('Certifications') +
+      '<div>' + certs + '</div>'
+    );
+
+    /* ===== ASSEMBLE ===== */
+    var allHtml = coverHtml + slide2 + slide3 + slide4 + slide5 + slide6;
+    var style = 'body{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:' + text + ';background-color:' + bg + ';margin:0;padding:20px;}' +
+      'span{display:inline-block;}' +
+      'b{color:' + white + ';font-weight:700;}' +
+      'a{color:' + blue + ';text-decoration:none;}';
+    return '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>' + style + '</style></head><body bgcolor="' + bg + '">' + allHtml + '</body></html>';
   }
 
   function triggerDownload(blob, name) {
